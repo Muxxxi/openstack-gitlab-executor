@@ -35,11 +35,11 @@ LABEL maintainer="Dmitry Misharov <misharov@redhat.com>" \
 
 WORKDIR $HOME
 
-COPY cleanup.py env.py config.sh prepare.py run.py requirements.txt start.sh .
+COPY cleanup.py env.py config.sh prepare.py run.py requirements.txt start.sh ./
 
 RUN dnf install -y --nodocs python38-pip git-core && \
     python3.8 -m venv $VENV && \
-    pip install wheel && \
+    pip install wheel dumb-init && \
     pip install -r requirements.txt && \
     dnf remove -y git-core && \
     dnf clean all -y
@@ -50,4 +50,5 @@ RUN chgrp -R 0 $HOME && \
 
 USER 1001
 
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["./start.sh"]

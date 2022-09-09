@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap cleanup 1 2 3 6
+trap cleanup SIGTERM
 
 cleanup() {
     gitlab-runner unregister --all-runners
