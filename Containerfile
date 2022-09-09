@@ -38,8 +38,9 @@ WORKDIR $HOME
 COPY cleanup.py env.py config.sh prepare.py run.py requirements.txt start.sh ./
 
 RUN dnf install -y --nodocs python38-pip git-core && \
+    pip3 install dumb-init && \
     python3.8 -m venv $VENV && \
-    pip install wheel dumb-init && \
+    pip install wheel && \
     pip install -r requirements.txt && \
     dnf remove -y git-core && \
     dnf clean all -y
@@ -50,5 +51,5 @@ RUN chgrp -R 0 $HOME && \
 
 USER 1001
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["./start.sh"]
