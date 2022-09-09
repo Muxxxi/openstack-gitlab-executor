@@ -23,7 +23,7 @@ def provision_server(
         flavor_id=flavor.id,
         image_id=image.id,
         key_name=env.KEY_PAIR_NAME,
-        security_groups=[{"name": env.SECURITY_GROUP}],
+        security_groups=[{"name": group} for group in env.SECURITY_GROUPS.split()],
         networks=[{"uuid": network.id}],
     )
     return conn.compute.wait_for_server(server, wait=600)
