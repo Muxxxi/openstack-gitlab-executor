@@ -19,7 +19,7 @@ RUN apt-get update && apt-get -y install curl dumb-init gcc libffi-dev && \
     pip3 install -r /data/requirements.txt && \
     chmod +x /data/* /usr/bin/entrypoint /usr/bin/gitlab-runner && \
     useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash && \
-    apt-get remove -y gcc curl && apt autoremove && apt-get clean
+    apt-get remove -y gcc curl && apt autoremove -y && apt-get clean
 
 USER gitlab-runner
 WORKDIR /data
