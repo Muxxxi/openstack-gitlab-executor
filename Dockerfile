@@ -11,18 +11,23 @@ LABEL maintainer="Max Reinheimer <max@reinheimer.dev>" \
       description="A GitLab runner image with openstack custom executor." \
       io.k8s.description="A GitLab runner image with openstack custom executor."
 
-COPY cleanup.py env.py config.sh prepare.py run.py requirements.txt /data/
-COPY entrypoint.sh /usr/bin/entrypoint
+COPY requirements.txt /data/
+
+WORKDIR /data
 
 RUN apt-get update && apt-get -y install curl dumb-init gcc libffi-dev && \
     curl -L --output /usr/bin/gitlab-runner "${GITLAB_RUNNER_URL}" && \
     pip3 install -r /data/requirements.txt && \
-    chmod +x /data/* /usr/bin/entrypoint /usr/bin/gitlab-runner && \
+    chmod +x /usr/bin/gitlab-runner && \
     useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash && \
     apt-get remove -y gcc curl && apt autoremove -y && apt-get clean
 
+COPY cleanup.py env.py config.sh prepare.py run.py /data/
+COPY entrypoint.sh /usr/bin/entrypoint
+
+RUN chmod +x /data/* /usr/bin/entrypoint
+
 USER gitlab-runner
-WORKDIR /data
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["entrypoint"]

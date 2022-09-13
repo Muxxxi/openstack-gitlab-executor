@@ -9,7 +9,10 @@ import env
 
 def get_server_ip(conn: openstack.connection.Connection) -> str:
     server = list(conn.compute.servers(name=env.VM_NAME, status="ACTIVE"))[0]
-    return list(conn.compute.server_ips(server))[0].address
+    if env.SSH_IP_VERSION == "4":
+        return list(conn.compute.server_ips(server))[2].address
+    else:
+        return list(conn.compute.server_ips(server))[0].address
 
 
 def execute_script_on_server(ssh: paramiko.client.SSHClient, script_path: str) -> int:

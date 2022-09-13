@@ -26,13 +26,22 @@ def provision_server(
         security_groups=[{"name": group} for group in env.SECURITY_GROUPS.split()],
         networks=[{"uuid": network.id}],
     )
-    return conn.compute.wait_for_server(server, wait=600)
+    server =  conn.compute.wait_for_server(server, wait=600)
+
+    if env.SSH_IP_VERSION == "4":
+        ips = conn.available_floating_ip(network=env.FLOATING_IP_NETWORK, server=server)
+        conn.compute.add_floating_ip_to_server(server, ips.floating_ip_address, fixed_address=None)
+    
+    return server
 
 
 def get_server_ip(
     conn: openstack.connection.Connection, server: openstack.compute.v2.server.Server
 ) -> str:
-    return list(conn.compute.server_ips(server))[0].address
+    if env.SSH_IP_VERSION == "4":
+        return list(conn.compute.server_ips(server))[2].address
+    else:
+        return list(conn.compute.server_ips(server))[0].address
 
 
 def check_ssh(ip: str) -> None:
