@@ -5,6 +5,7 @@ FLAVOR = os.getenv("CUSTOM_ENV_FLAVOR") or os.getenv("FLAVOR")
 BUILDER_IMAGE = os.getenv("CUSTOM_ENV_BUILDER_IMAGE") or os.getenv("BUILDER_IMAGE")
 NETWORK = os.getenv("CUSTOM_ENV_NETWORK") or os.getenv("NETWORK")
 KEY_PAIR_NAME = f'key-{VM_NAME}'
+VOLUME_SIZE = os.getenv("CUSTOM_ENV_VOLUME_SIZE") or os.getenv("VOLUME_SIZE") or "20"
 SECURITY_GROUPS = os.getenv("CUSTOM_ENV_SECURITY_GROUPS") or os.getenv("SECURITY_GROUPS")
 USERNAME = os.getenv("CUSTOM_ENV_USERNAME") or os.getenv("USERNAME")
 PRIVATE_KEY_PATH = f"{os.getenv('HOME')}/priv_key-{VM_NAME}"

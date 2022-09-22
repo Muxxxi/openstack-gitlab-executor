@@ -26,6 +26,8 @@ def provision_server(
         name=env.VM_NAME,
         flavor_id=flavor.id,
         image_id=image.id,
+        boot_from_volume=True,
+        volume_size=env.VOLUME_SIZE,
         key_name=env.KEY_PAIR_NAME,
         security_groups=[{"name": group} for group in env.SECURITY_GROUPS.split()],
         networks=[{"uuid": network.id}],
