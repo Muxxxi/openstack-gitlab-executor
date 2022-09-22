@@ -26,6 +26,7 @@ def provision_server(
         name=env.VM_NAME,
         flavor=flavor.id,
         image=image.id,
+        auto_ip=False,
         boot_from_volume=True,
         terminate_volume=True,
         volume_size=env.VOLUME_SIZE,
@@ -33,7 +34,7 @@ def provision_server(
         security_groups=[group for group in env.SECURITY_GROUPS.split()],
         network=network.id
     )
-    
+
     server =  conn.wait_for_server(server, timeout=180)
 
     if env.SSH_IP_VERSION == "4":
