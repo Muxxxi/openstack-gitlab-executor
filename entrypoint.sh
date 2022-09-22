@@ -12,8 +12,6 @@ if [[ "$TLS_CA_CERT" ]]; then
     echo "$TLS_CA_CERT" > "$HOME"/.gitlab-runner/certs/$(echo "$CI_SERVER_URL" | cut -d'/' -f3 | cut -d':' -f1).crt
 fi
 
-echo "$PRIVATE_KEY" > "$HOME"/priv_key
-
 gitlab-runner register --non-interactive \
                        --executor=custom \
                        --custom-config-exec=/data/config.sh \

@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 import sys
 import traceback
-
+import os
 import openstack
 import paramiko
 from tenacity import retry
 from tenacity import RetryCallState
 from tenacity import stop_after_attempt
 from tenacity import wait_fixed
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
 
 import env
 
-
 def provision_server(
     conn: openstack.connection.Connection,
+    public_key: str
 ) -> openstack.compute.v2.server.Server:
+    conn.create_keypair(env.KEY_PAIR_NAME, public_key=public_key)
     image = conn.compute.find_image(env.BUILDER_IMAGE)
     flavor = conn.compute.find_flavor(env.FLAVOR)
     network = conn.network.find_network(env.NETWORK)
@@ -75,6 +79,27 @@ def check_ssh(ip: str) -> None:
     ssh_client.close()
 
 
+def generate_rsa_keypair():
+    # generate private/public key pair
+    key = rsa.generate_private_key(backend=default_backend(), public_exponent=65537, \
+        key_size=2048)
+
+    # get public key in OpenSSH format
+    public_key = key.public_key().public_bytes(serialization.Encoding.OpenSSH, \
+        serialization.PublicFormat.OpenSSH)
+
+    # get private key in PEM container format
+    pem = key.private_bytes(encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption())
+
+    with open(env.PRIVATE_KEY_PATH, 'wb') as content_file:
+        content_file.write(pem.decode('utf-8'))    
+    public_key_str = public_key.decode('utf-8')
+    print(f'Public Key: {public_key_str}')
+    return public_key_str
+
+
 def main() -> None:
     print(
         "Source code of this driver https://github.com/RedHatQE/openstack-gitlab-executor",
@@ -84,7 +109,8 @@ def main() -> None:
     try:
         conn = openstack.connect()
         print(f"Provisioning an instance {env.VM_NAME}", flush=True)
-        server = provision_server(conn)
+        public_key = generate_rsa_keypair()
+        server = provision_server(conn, public_key)
         ip = get_server_ip(conn, server)
         print(f"Instance {env.VM_NAME} is running on address {ip}", flush=True)
         conn.close()
