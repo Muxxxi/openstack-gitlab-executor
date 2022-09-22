@@ -93,8 +93,8 @@ def generate_rsa_keypair():
         format=serialization.PrivateFormat.TraditionalOpenSSL,
         encryption_algorithm=serialization.NoEncryption())
 
-    with open(env.PRIVATE_KEY_PATH, 'wb') as content_file:
-        content_file.write(pem.decode('utf-8'))    
+    with open(env.PRIVATE_KEY_PATH, 'w') as content_file:
+        content_file.write(pem.decode('utf-8'))
     public_key_str = public_key.decode('utf-8')
     print(f'Public Key: {public_key_str}')
     return public_key_str
