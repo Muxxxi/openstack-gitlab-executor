@@ -31,9 +31,10 @@ def provision_server(
         volume_size=env.VOLUME_SIZE,
         key_name=env.KEY_PAIR_NAME,
         security_groups=[group for group in env.SECURITY_GROUPS.split()],
-        network=network.id,
+        network=network.id
     )
-    server =  conn.compute.wait_for_server(server, wait=600)
+    
+    server =  conn.wait_for_server(server, timeout=180)
 
     if env.SSH_IP_VERSION == "4":
         ips = conn.available_floating_ip(network=env.FLOATING_IP_NETWORK, server=server)
