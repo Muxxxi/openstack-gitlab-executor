@@ -22,16 +22,16 @@ def provision_server(
     image = conn.compute.find_image(env.BUILDER_IMAGE)
     flavor = conn.compute.find_flavor(env.FLAVOR)
     network = conn.network.find_network(env.NETWORK)
-    server = conn.compute.create_server(
+    server = conn.create_server(
         name=env.VM_NAME,
-        flavor_id=flavor.id,
-        image_id=image.id,
+        flavor=flavor.id,
+        image=image.id,
         boot_from_volume=True,
         terminate_volume=True,
         volume_size=env.VOLUME_SIZE,
         key_name=env.KEY_PAIR_NAME,
         security_groups=[{"name": group} for group in env.SECURITY_GROUPS.split()],
-        networks=[{"uuid": network.id}],
+        network=network.id,
     )
     server =  conn.compute.wait_for_server(server, wait=600)
 
