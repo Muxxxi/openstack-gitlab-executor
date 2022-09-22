@@ -30,7 +30,7 @@ def provision_server(
         terminate_volume=True,
         volume_size=env.VOLUME_SIZE,
         key_name=env.KEY_PAIR_NAME,
-        security_groups=[{"name": group} for group in env.SECURITY_GROUPS.split()],
+        security_groups=[group for group in env.SECURITY_GROUPS.split()],
         network=network.id,
     )
     server =  conn.compute.wait_for_server(server, wait=600)
