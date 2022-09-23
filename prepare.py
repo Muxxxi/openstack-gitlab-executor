@@ -48,7 +48,7 @@ def provision_server(
 def get_server_ip(
     conn: openstack.connection.Connection, server: openstack.compute.v2.server.Server
 ) -> str:
-    ips = [ipaddress.ip_address(ip) for ip in list(conn.compute.server_ips(server.id))]
+    ips = [ipaddress.ip_address(ip.address) for ip in list(conn.compute.server_ips(server.id))]
     print(ips)
     for ip in ips:
         if env.SSH_IP_VERSION == str(ip.version) and ip.is_global:
