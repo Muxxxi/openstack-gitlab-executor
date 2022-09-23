@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import time
 import traceback
 import ipaddress
 import openstack
@@ -26,7 +27,6 @@ def provision_server(
         name=env.VM_NAME,
         flavor=flavor.id,
         image=image.id,
-        auto_ip=False,
         boot_from_volume=True,
         terminate_volume=True,
         wait=True,
@@ -37,10 +37,6 @@ def provision_server(
     )
 
     server =  conn.wait_for_server(server, timeout=180)
-
-    # if env.SSH_IP_VERSION == "4":
-    #     ips = conn.available_floating_ip(network=env.FLOATING_IP_NETWORK, server=server)
-    #     conn.compute.add_floating_ip_to_server(server, ips.floating_ip_address, fixed_address=None)
     
     return server
 
@@ -48,11 +44,15 @@ def provision_server(
 def get_server_ip(
     conn: openstack.connection.Connection, server: openstack.compute.v2.server.Server
 ) -> str:
-    ips = [ipaddress.ip_address(ip.address) for ip in list(conn.compute.server_ips(server.id))]
-    print(ips)
-    for ip in ips:
-        if env.SSH_IP_VERSION == str(ip.version) and ip.is_global:
-            return str(ip)
+    for i in range(3):
+        ips = [ipaddress.ip_address(ip.address) for ip in list(conn.compute.server_ips(server.id))]
+        print(ips)
+        for ip in ips:
+            if env.SSH_IP_VERSION == str(ip.version) and ip.is_global:
+                return str(ip)
+        time.sleep(10)
+    raise RuntimeError("No working ip address found")
+    
         
 
 def check_ssh(ip: str) -> None:
