@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import traceback
-import os
+import ipaddress
 import openstack
 import paramiko
 from tenacity import retry
@@ -29,6 +29,7 @@ def provision_server(
         auto_ip=False,
         boot_from_volume=True,
         terminate_volume=True,
+        wait=True,
         volume_size=env.VOLUME_SIZE,
         key_name=env.KEY_PAIR_NAME,
         security_groups=[group for group in env.SECURITY_GROUPS.split()],
@@ -47,11 +48,12 @@ def provision_server(
 def get_server_ip(
     conn: openstack.connection.Connection, server: openstack.compute.v2.server.Server
 ) -> str:
-    if env.SSH_IP_VERSION == "4":
-        return list(conn.compute.server_ips(server))[2].address
-    else:
-        return list(conn.compute.server_ips(server))[0].address
-
+    ips = [ipaddress.ip_address(ip) for ip in list(conn.compute.server_ips(server.id))]
+    print(ips)
+    for ip in ips:
+        if env.SSH_IP_VERSION == str(ip.version) and ip.is_global:
+            return str(ip)
+        
 
 def check_ssh(ip: str) -> None:
     ssh_client = paramiko.client.SSHClient()
