@@ -37,9 +37,9 @@ def provision_server(
 
     server =  conn.wait_for_server(server, timeout=180)
 
-    if env.SSH_IP_VERSION == "4":
-        ips = conn.available_floating_ip(network=env.FLOATING_IP_NETWORK, server=server)
-        conn.compute.add_floating_ip_to_server(server, ips.floating_ip_address, fixed_address=None)
+    # if env.SSH_IP_VERSION == "4":
+    #     ips = conn.available_floating_ip(network=env.FLOATING_IP_NETWORK, server=server)
+    #     conn.compute.add_floating_ip_to_server(server, ips.floating_ip_address, fixed_address=None)
     
     return server
 
