@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import sys
-
 import openstack
 import paramiko
-
 import env
 
 
