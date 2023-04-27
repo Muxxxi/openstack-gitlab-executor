@@ -37,11 +37,12 @@ def provision_server(
     )
 
     start_time = time.time()
+    print("Waiting for server to start (0s)", flush=True)
     while True:
         try:
             server = conn.wait_for_server(server, timeout=10)
             break
-        except openstack.exceptions.ResourceTimeout as e:
+        except Exception as e:
             time_difference = time.time() - start_time
             print(f"Waiting for server to start ({time_difference}s)", flush=True)
             if time_difference > 500:
