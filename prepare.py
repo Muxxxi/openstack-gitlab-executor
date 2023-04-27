@@ -36,7 +36,16 @@ def provision_server(
         network=network.id
     )
 
-    server =  conn.wait_for_server(server, timeout=1000)
+    start_time = time.time()
+    while True:
+        try:
+            server = conn.wait_for_server(server, timeout=10)
+            break
+        except openstack.exceptions.ResourceTimeout as e:
+            time_difference = time.time() - start_time
+            print(f"Waiting for server to start ({time_difference}s)")
+            if time_difference > 500:
+                raise e
     
     return server
 
