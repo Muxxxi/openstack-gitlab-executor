@@ -30,23 +30,14 @@ def provision_server(
         boot_from_volume=True,
         terminate_volume=True,
         wait=True,
+        timeout=300,
         volume_size=env.VOLUME_SIZE,
         key_name=env.KEY_PAIR_NAME,
         security_groups=[group for group in env.SECURITY_GROUPS.split()],
         network=network.id
     )
 
-    start_time = time.time()
-    print("Waiting for server to start (0s)", flush=True)
-    while True:
-        try:
-            server = conn.wait_for_server(server, timeout=10)
-            break
-        except Exception as e:
-            time_difference = time.time() - start_time
-            print(f"Waiting for server to start ({time_difference}s)", flush=True)
-            if time_difference > 500:
-                raise e
+    server = conn.wait_for_server(server, timeout=180)
     
     return server
 
