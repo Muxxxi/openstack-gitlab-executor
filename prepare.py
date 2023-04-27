@@ -36,7 +36,7 @@ def provision_server(
         network=network.id
     )
 
-    server =  conn.wait_for_server(server, timeout=300)
+    server =  conn.wait_for_server(server, timeout=500)
     
     return server
 
