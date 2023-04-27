@@ -43,7 +43,7 @@ def provision_server(
             break
         except openstack.exceptions.ResourceTimeout as e:
             time_difference = time.time() - start_time
-            print(f"Waiting for server to start ({time_difference}s)")
+            print(f"Waiting for server to start ({time_difference}s)", flush=True)
             if time_difference > 500:
                 raise e
     
