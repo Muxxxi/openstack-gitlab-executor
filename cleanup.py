@@ -12,7 +12,7 @@ def main() -> None:
         conn = openstack.connect()
 
         for server in conn.compute.servers(name=env.VM_NAME):
-            volumes = server.list_volumes()
+            volumes = server.attached_volumes
             for i in range(5):
                 conn.delete_server(server.id, delete_ips=True)
                 time.sleep(5)
@@ -28,12 +28,11 @@ def main() -> None:
                         if conn.block_storage.find_volume(volume.id):
                             conn.block_storage.delete_volume(volume.id)
                         print(f"Successfully deleted volume with ID {volume.id}", flush=True)
-                        return
+                        break
                     except openstack.exceptions.SDKException as e:
                         print(f"Error deleting volume with ID {volume.id}: {e}", flush=True)
                         print("Retrying in 10 seconds...", flush=True)
                         time.sleep(10)
-                print(f"Unable to delete volume with ID {volume.id} after 5 minutes", flush=True)
 
         if os.path.exists(env.PRIVATE_KEY_PATH):
             os.remove(env.PRIVATE_KEY_PATH)
