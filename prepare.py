@@ -23,25 +23,21 @@ def provision_server(
     image = conn.compute.find_image(env.BUILDER_IMAGE)
     flavor = conn.compute.find_flavor(env.FLAVOR)
     network = conn.network.find_network(env.NETWORK)
-    try:
-        server = conn.create_server(
-            name=env.VM_NAME,
-            flavor=flavor.id,
-            image=image.id,
-            boot_from_volume=True,
-            terminate_volume=True,
-            volume_size=env.VOLUME_SIZE,
-            key_name=env.KEY_PAIR_NAME,
-            security_groups=[group for group in env.SECURITY_GROUPS.split()],
-            network=network.id
-        )
-    except openstack.exceptions.SDKException as e:
-        print(e, flush=True)
-    except Exception as e:
-        print(e, flush=True)
+    server = conn.create_server(
+        name=env.VM_NAME,
+        flavor=flavor.id,
+        image=image.id,
+        boot_from_volume=True,
+        terminate_volume=True,
+        volume_size=env.VOLUME_SIZE,
+        key_name=env.KEY_PAIR_NAME,
+        security_groups=[group for group in env.SECURITY_GROUPS.split()],
+        network=network.id
+    )
 
     print(f'Waiting for server to come up...')
     server = conn.wait_for_server(server, timeout=int(env.SERVER_CREATION_TIMEOUT))
+
     
     return server
 
