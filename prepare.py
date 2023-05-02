@@ -23,21 +23,25 @@ def provision_server(
     image = conn.compute.find_image(env.BUILDER_IMAGE)
     flavor = conn.compute.find_flavor(env.FLAVOR)
     network = conn.network.find_network(env.NETWORK)
-    server = conn.create_server(
-        name=env.VM_NAME,
-        flavor=flavor.id,
-        image=image.id,
-        boot_from_volume=True,
-        terminate_volume=True,
-        wait=True,
-        timeout=300,
-        volume_size=env.VOLUME_SIZE,
-        key_name=env.KEY_PAIR_NAME,
-        security_groups=[group for group in env.SECURITY_GROUPS.split()],
-        network=network.id
-    )
+    try:
+        server = conn.create_server(
+            name=env.VM_NAME,
+            flavor=flavor.id,
+            image=image.id,
+            boot_from_volume=True,
+            terminate_volume=True,
+            volume_size=env.VOLUME_SIZE,
+            key_name=env.KEY_PAIR_NAME,
+            security_groups=[group for group in env.SECURITY_GROUPS.split()],
+            network=network.id
+        )
+    except openstack.exceptions.SDKException as e:
+        print(e, flush=True)
+    except Exception as e:
+        print(e, flush=True)
 
-    server = conn.wait_for_server(server, timeout=180)
+    print(f'Waiting for server to come up...')
+    server = conn.wait_for_server(server, timeout=int(env.SERVER_CREATION_TIMEOUT))
     
     return server
 
@@ -104,7 +108,6 @@ def generate_rsa_keypair():
     with open(env.PRIVATE_KEY_PATH, 'w') as content_file:
         content_file.write(pem.decode('utf-8'))
     public_key_str = public_key.decode('utf-8')
-    print(f'Public Key: {public_key_str}')
     return public_key_str
 
 
@@ -118,6 +121,7 @@ def main() -> None:
         conn = openstack.connect()
         print(f"Provisioning an instance {env.VM_NAME}", flush=True)
         public_key = generate_rsa_keypair()
+        print(f'Public Key: {public_key}', flush=True)
         server = provision_server(conn, public_key)
         ip = get_server_ip(conn, server)
         print(f"Instance {env.VM_NAME} is running on address {ip}", flush=True)
