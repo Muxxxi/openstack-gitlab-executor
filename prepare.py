@@ -19,6 +19,7 @@ def provision_server(
     conn: openstack.connection.Connection,
     public_key: str
 ) -> openstack.compute.v2.server.Server:
+    floating_ip = True if env.SSH_IP_VERSION == "4" else False
     conn.create_keypair(env.KEY_PAIR_NAME, public_key=public_key)
     image = conn.compute.find_image(env.BUILDER_IMAGE)
     flavor = conn.compute.find_flavor(env.FLAVOR)
@@ -27,6 +28,7 @@ def provision_server(
         name=env.VM_NAME,
         flavor=flavor.id,
         image=image.id,
+        auto_ip=floating_ip,
         boot_from_volume=True,
         terminate_volume=True,
         volume_size=env.VOLUME_SIZE,
