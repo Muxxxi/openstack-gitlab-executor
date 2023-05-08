@@ -30,7 +30,7 @@ def provision_server(
         image=image.id,
         auto_ip=floating_ip,
         wait=True,
-        timeout=env.SERVER_CREATION_TIMEOUT,
+        timeout=int(env.SERVER_CREATION_TIMEOUT),
         boot_from_volume=True,
         terminate_volume=True,
         volume_size=env.VOLUME_SIZE,
