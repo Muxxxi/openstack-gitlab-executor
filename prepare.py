@@ -29,6 +29,8 @@ def provision_server(
         flavor=flavor.id,
         image=image.id,
         auto_ip=floating_ip,
+        wait=True,
+        timeout=env.SERVER_CREATION_TIMEOUT,
         boot_from_volume=True,
         terminate_volume=True,
         volume_size=env.VOLUME_SIZE,
@@ -37,10 +39,6 @@ def provision_server(
         network=network.id
     )
 
-    print(f'Waiting for server to come up...')
-    server = conn.wait_for_server(server, timeout=int(env.SERVER_CREATION_TIMEOUT))
-
-    
     return server
 
 
